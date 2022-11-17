@@ -66,13 +66,6 @@ usertrap(void)
 
     syscall();
   } else if((which_dev = devintr()) != 0){
-    if(which_dev==2){
-      p->spend++;
-      if(p->spend==p->interval){
-        p->spend=0;
-        p->trapframe->epc=(uint64)p->handler;
-      }
-    }
   } else {
     printf("usertrap(): unexpected scause %p pid=%d\n", r_scause(), p->pid);
     printf("            sepc=%p stval=%p\n", r_sepc(), r_stval());
@@ -82,7 +75,15 @@ usertrap(void)
   if(killed(p))
     exit(-1);
 
-  // give up the CPU if this is a timer interrupt.
+  if(which_dev == 2){   // timer interrupt
+    // increase the passed ticks
+    if(p->interval != 0 && ++p->passedticks == p->interval){  
+      // 使用 trapframe 后的一部分内存, trapframe大小为288B, 因此只要在trapframe地址后288以上地址都可, 此处512只是为了取整数幂
+      p->trapframecopy = p->trapframe + 512;  
+      memmove(p->trapframecopy,p->trapframe,sizeof(struct trapframe));    // copy trapframe
+      p->trapframe->epc = p->handler;   // execute handler() when return to user space
+    }
+  }
   if(which_dev == 2)
     yield();
 

@@ -93,19 +93,30 @@ sys_uptime(void)
   return xticks;
 }
 
-uint64
-sys_sigalarm(void){
-  struct proc* myProc = myproc();
-  int n;
-  uint64 handler;
-  argint(0,&n);
-  myProc->interval = n;
-  argaddr(1,&handler);
-  myProc->handler = (void(*)())handler;
-  return 0;
+uint64 sys_sigalarm(void) {
+    int interval;
+    uint64 handler;
+    struct proc *p;
+    // 要求时间间隔非负
+    argint(0, &interval);
+    argaddr(1, &handler);
+    p = myproc();
+    p->interval = interval;
+    p->handler = handler;
+    p->passedticks = 0;    // 重置过去时钟数
+
+    return 0;
 }
 
-uint64
-sys_sigreturn(void){
-  return 0;
+
+uint64 sys_sigreturn(void) {
+    struct proc* p = myproc();
+    // trapframecopy must have the copy of trapframe
+    if(p->trapframecopy != p->trapframe + 512) {
+        return -1;
+    }
+    memmove(p->trapframe, p->trapframecopy, sizeof(struct trapframe));   // restore the trapframe
+    p->passedticks = 0;     // prevent re-entrant
+    p->trapframecopy = 0;    // 置零
+    return 0;
 }
