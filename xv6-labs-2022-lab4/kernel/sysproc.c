@@ -118,5 +118,5 @@ uint64 sys_sigreturn(void) {
     memmove(p->trapframe, p->trapframecopy, sizeof(struct trapframe));   // restore the trapframe
     p->passedticks = 0;     // prevent re-entrant
     p->trapframecopy = 0;    // 置零
-    return 0;
+    return p->trapframe->a0;
 }
