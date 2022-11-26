@@ -97,13 +97,12 @@ uint64 sys_sigalarm(void) {
     int interval;
     uint64 handler;
     struct proc *p;
-    // 要求时间间隔非负
     argint(0, &interval);
     argaddr(1, &handler);
     p = myproc();
     p->interval = interval;
     p->handler = handler;
-    p->passedticks = 0;    // 重置过去时钟数
+    p->passedticks = 0; 
 
     return 0;
 }
@@ -111,12 +110,11 @@ uint64 sys_sigalarm(void) {
 
 uint64 sys_sigreturn(void) {
     struct proc* p = myproc();
-    // trapframecopy must have the copy of trapframe
     if(p->trapframecopy != p->trapframe + 512) {
         return -1;
     }
-    memmove(p->trapframe, p->trapframecopy, sizeof(struct trapframe));   // restore the trapframe
-    p->passedticks = 0;     // prevent re-entrant
-    p->trapframecopy = 0;    // 置零
+    memmove(p->trapframe, p->trapframecopy, sizeof(struct trapframe)); 
+    p->passedticks = 0; 
+    p->trapframecopy = 0; 
     return p->trapframe->a0;
 }
