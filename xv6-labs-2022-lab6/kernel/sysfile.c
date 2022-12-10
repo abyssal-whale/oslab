@@ -302,20 +302,35 @@ create(char *path, short type, short major, short minor)
 }
 
 uint64
+getsymlink(struct inode *ip,struct inode **res){
+  struct inode *p=ip;
+  int cnt=0;
+  do{
+    char target[MAXPATH];
+    readi(p,0,(uint64)target,0,MAXPATH);
+    iunlockput(p);
+    if((p=namei(target))==0){
+      return -1;
+    }	    
+    cnt++;
+    ilock(p);
+  }while(cnt<10 && p->type==T_SYMLINK);
+  if(cnt==10) return -1;
+  *res=p;
+  return 0;
+}
+
+uint64
 sys_open(void)
 {
   char path[MAXPATH];
   int fd, omode;
   struct file *f;
   struct inode *ip;
-  int n;
-
+  // int n;
+  argstr(0, path, MAXPATH);
   argint(1, &omode);
-  if((n = argstr(0, path, MAXPATH)) < 0)
-    return -1;
-
   begin_op();
-
   if(omode & O_CREATE){
     ip = create(path, T_FILE, 0, 0);
     if(ip == 0){
@@ -333,14 +348,21 @@ sys_open(void)
       end_op();
       return -1;
     }
+ 
+    if(ip->type==T_SYMLINK && omode!=O_NOFOLLOW){
+      struct inode *ip2=ip;
+      if(getsymlink(ip2,&ip)!=0){
+	    end_op();
+	    return -1;
+      }
+      
+    }
   }
-
   if(ip->type == T_DEVICE && (ip->major < 0 || ip->major >= NDEV)){
     iunlockput(ip);
     end_op();
     return -1;
   }
-
   if((f = filealloc()) == 0 || (fd = fdalloc(f)) < 0){
     if(f)
       fileclose(f);
@@ -348,7 +370,6 @@ sys_open(void)
     end_op();
     return -1;
   }
-
   if(ip->type == T_DEVICE){
     f->type = FD_DEVICE;
     f->major = ip->major;
@@ -359,14 +380,11 @@ sys_open(void)
   f->ip = ip;
   f->readable = !(omode & O_WRONLY);
   f->writable = (omode & O_WRONLY) || (omode & O_RDWR);
-
   if((omode & O_TRUNC) && ip->type == T_FILE){
     itrunc(ip);
   }
-
   iunlock(ip);
   end_op();
-
   return fd;
 }
 
@@ -501,5 +519,39 @@ sys_pipe(void)
     fileclose(wf);
     return -1;
   }
+  return 0;
+}
+
+uint64
+sys_symlink(void){
+  char target[MAXPATH],path[MAXPATH],name[DIRSIZ];
+  struct inode *dp,*sp;
+  if(argstr(0,target,MAXPATH)<0 || argstr(1,path,MAXPATH)<0)
+    return -1;
+  begin_op();
+  if((dp=nameiparent(path,name))==0){
+    end_op();
+    return -1;
+  }
+  sp=ialloc(dp->dev,T_SYMLINK);
+  ilock(sp);
+  if(writei(sp,0,(uint64)target,0,sizeof(target))!=sizeof(target)){
+    iunlockput(sp);
+    iput(dp);
+    end_op();
+    return -1;
+  }
+  ilock(dp);
+  if(dirlink(dp,name,sp->inum)<0){
+    iunlockput(dp);
+    iunlockput(sp);
+    end_op();
+    return -1;
+  }
+  iunlockput(dp);
+  sp->nlink++;
+  iupdate(sp);
+  iunlockput(sp);
+  end_op();
   return 0;
 }
