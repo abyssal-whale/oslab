@@ -51,17 +51,31 @@ usertrap(void)
   p->trapframe->epc = r_sepc();
   
   if(r_scause() == 8){
+    // system call
 
-  } else if(r_scause() == 13 || r_scause() == 15){
+    if(killed(p))
+      exit(-1);
 
-    uint64 va = r_stval();
-    if(cow_copy(p->pagetable, va) == 0)
-    {
-      // panic("be kill\n");
-      p->killed = 1;
+    // sepc points to the ecall instruction,
+    // but we want to return to the next instruction.
+    p->trapframe->epc += 4;
+
+    // an interrupt will change sepc, scause, and sstatus,
+    // so enable only now that we're done with those registers.
+    intr_on();
+
+    syscall();
+  } 
+  else if(r_scause() == 15) { // 缺页错误
+    if(uncopied_cow(p->pagetable,r_stval()) > 0){
+      if(r_stval() < PGSIZE)  //对0起始地址等低地址直接写，那么直接退出
+        p->killed = 1;
+      if(cowalloc(p->pagetable,r_stval()) < 0)
+        p->killed = 1;
     }
-  } else if((which_dev = devintr()) != 0){
-  }else {
+  }else if((which_dev = devintr()) != 0){
+    // ok
+  } else {
     printf("usertrap(): unexpected scause %p pid=%d\n", r_scause(), p->pid);
     printf("            sepc=%p stval=%p\n", r_sepc(), r_stval());
     setkilled(p);
@@ -212,4 +226,3 @@ devintr()
     return 0;
   }
 }
-

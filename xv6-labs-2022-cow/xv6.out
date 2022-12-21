@@ -1,0 +1,101 @@
+
+xv6 kernel is booting
+
+hart 1 starting
+hart 2 starting
+init: starting sh
+$ usertests -q
+usertests starting
+test copyin: OK
+test copyout: OK
+test copyinstr1: OK
+test copyinstr2: OK
+test copyinstr3: OK
+test rwsbrk: OK
+test truncate1: OK
+test truncate2: OK
+test truncate3: OK
+test openiput: OK
+test exitiput: OK
+test iput: OK
+test opentest: OK
+test writetest: OK
+test writebig: OK
+test createtest: OK
+test dirtest: OK
+test exectest: OK
+test pipe1: OK
+test killstatus: OK
+test preempt: kill... wait... OK
+test exitwait: OK
+test reparent: OK
+test twochildren: OK
+test forkfork: OK
+test forkforkfork: OK
+test reparent2: OK
+test mem: OK
+test sharedfd: OK
+test fourfiles: OK
+test createdelete: OK
+test unlinkread: OK
+test linktest: OK
+test concreate: OK
+test linkunlink: OK
+test subdir: OK
+test bigwrite: OK
+test bigfile: OK
+test fourteen: OK
+test rmdot: OK
+test dirfile: OK
+test iref: OK
+test forktest: OK
+test sbrkbasic: OK
+test sbrkmuch: OK
+test kernmem: usertrap(): unexpected scause 0x000000000000000d pid=6475
+            sepc=0x00000000000021f2 stval=0x0000000080000000
+usertrap(): unexpected scause 0x000000000000000d pid=6476
+            sepc=0x00000000000021f2 stval=0x000000008000c350
+usertrap(): unexpected scause 0x000000000000000d pid=6477
+            sepc=0x00000000000021f2 stval=0x00000000800186a0
+usertrap(): unexpected scause 0x000000000000000d pid=6478
+            sepc=0x00000000000021f2 stval=0x00000000800249f0
+usertrap(): unexpected scause 0x000000000000000d pid=6479
+            sepc=0x00000000000021f2 stval=0x0000000080030d40
+usertrap(): unexpected scause 0x000000000000000d pid=6480
+            sepc=0x00000000000021f2 stval=0x000000008003d090
+usertrap(): unexpected scause 0x000000000000000d pid=6481
+            sepc=0x00000000000021f2 stval=0x00000000800493e0
+usertrap(): unexpected scause 0x000000000000000d pid=6482
+            sepc=0x00000000000021f2 stval=0x0000000080055730
+usertrap(): unexpected scause 0x000000000000000d pid=6483
+            sepc=0x00000000000021f2 stval=0x0000000080061a80
+usertrap(): unexpected scause 0x000000000000000d pid=6484
+            sepc=0x00000000000021f2 stval=0x000000008006ddd0
+usertrap(): unexpected scause 0x000000000000000d pid=6485
+            sepc=0x00000000000021f2 stval=0x000000008007a120
+usertrap(): unexpected scause 0x000000000000000d pid=6486
+            sepc=0x00000000000021f2 stval=0x0000000080086470
+usertrap(): unexpected scause 0x000000000000000d pid=6487
+            sepc=0x00000000000021f2 stval=0x00000000800927c0
+usertrap(): unexpected scause 0x000000000000000d pid=6488
+            sepc=0x00000000000021f2 stval=0x000000008009eb10
+usertrap(): unexpected scause 0x000000000000000d pid=6489
+            sepc=0x00000000000021f2 stval=0x00000000800aae60
+usertrap(): unexpected scause 0x000000000000000d pid=6490
+            sepc=0x00000000000021f2 stval=0x00000000800b71b0
+usertrap(): unexpected scause 0x000000000000000d pid=6491
+            sepc=0x00000000000021f2 stval=0x00000000800c3500
+usertrap(): unexpected scause 0x000000000000000d pid=6492
+            sepc=0x00000000000021f2 stval=0x00000000800cf850
+usertrap(): unexpected scause 0x000000000000000d pid=6493
+            sepc=0x00000000000021f2 stval=0x00000000800dbba0
+usertrap(): unexpected scause 0x000000000000000d pid=6494
+            sepc=0x00000000000021f2 stval=0x00000000800e7ef0
+usertrap(): unexpected scause 0x000000000000000d pid=6495
+            sepc=0x00000000000021f2 stval=0x00000000800f4240
+usertrap(): unexpected scause 0x000000000000000d pid=6496
+            sepc=0x00000000000021f2 stval=0x0000000080100590
+usertrap(): unexpected scause 0x000000000000000d pid=6497
+            sepc=0x00000000000021f2 stval=0x000000008010c8e0
+usertrap(): unexpected scause 0x000000000000000d pid=6498
+            sepc=0x00000000000021f2 stval=0x0000000080118c30
