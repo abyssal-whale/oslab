@@ -65,6 +65,16 @@ kfree(void *pa)
   if(((uint64)pa % PGSIZE) != 0 || (char*)pa < end || (uint64)pa >= PHYSTOP)
     panic("kfree");
 
+  uint64 pi = (uint64)pa/PGSIZE;
+  acquire(&(mem_ref[pi].lock));
+    
+  mem_ref[pi].cnt = mem_ref[pi].cnt - 1;
+  if(mem_ref[pi].cnt > 0)
+  {
+    release(&(mem_ref[pi].lock));
+    return;
+  }
+
   // Fill with junk to catch dangling refs.
   memset(pa, 1, PGSIZE);
 
