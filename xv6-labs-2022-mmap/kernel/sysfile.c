@@ -557,18 +557,12 @@ sys_mmap()
   uint64 addr = 0, length = 0, offset = 0;
   int prot = 0, flags = 0;
   struct file *f;
-  if (argaddr(0, &addr) < 0) // addr is 0 by default, which means the user does not use specific address
-    return -1;
-  if (argaddr(1, &length) < 0)
-    return -1;
-  if (argint(2, &prot) < 0)
-    return -1;
-  if (argint(3, &flags) < 0)
-    return -1;
-  if (argfd(4, 0, &f) < 0)
-    return -1;
-  if (argaddr(5, &offset) < 0)
-    return -1;
+  argaddr(0, &addr);
+  argaddr(1, &length);
+  argint(2, &prot);
+  argint(3, &flags);
+  argfd(4, 0, &f);
+  argaddr(5, &offset);
 
   // check operation conflict
   if ((prot & PROT_WRITE) && !(f->writable) && !(flags & MAP_PRIVATE))
