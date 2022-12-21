@@ -28,10 +28,15 @@ struct mem_ref
   struct spinlock lock;
   int cnt;
 };
+struct mem_ref mem_ref[PHYSTOP/PGSIZE];
 
 void
 kinit()
 {
+
+  for(int i = 0; i < PHYSTOP/PGSIZE; ++i)
+    initlock(&(mem_ref[i].lock), "kmem_ref");
+  
   initlock(&kmem.lock, "kmem");
   freerange(end, (void*)PHYSTOP);
 }
