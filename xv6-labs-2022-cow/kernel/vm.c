@@ -455,3 +455,47 @@ cow_check(pagetable_t pagetable, uint64 va)
 
   return ans;
 }
+
+uint64 
+cow_copy(pagetable_t pagetable, uint64 va)
+{
+  if(cow_check(pagetable, va) == 0)
+    return 0;
+
+  va = PGROUNDDOWN(va);
+  pte_t *pte = walk(pagetable, va, 0);
+  uint64 pa = PTE2PA(*pte);
+
+
+  if(get_mem_ref(pa) == 1)
+  {
+    *pte = (*pte) & (~PTE_COW);
+    *pte = (*pte) | (PTE_W);
+    return pa;
+  }
+  else
+  {
+    char *mem = kalloc();
+    if(mem == 0){
+      return 0;
+    }
+
+    memmove(mem, (char *)pa, PGSIZE);
+    *pte = (*pte) & (~PTE_V);
+    uint64 flag = PTE_FLAGS(*pte);
+    flag = flag | PTE_W;
+    flag = flag & (~PTE_COW);
+
+
+    if(mappages(pagetable, va, PGSIZE, (uint64)mem, flag) != 0)
+    {
+      kfree(mem);
+      return 0;
+    }
+
+    kfree((char*)PGROUNDDOWN(pa));
+
+    return (uint64)mem;
+    
+  }
+}
