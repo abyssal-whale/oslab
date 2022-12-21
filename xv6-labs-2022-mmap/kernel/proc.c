@@ -55,6 +55,7 @@ procinit(void)
       initlock(&p->lock, "proc");
       p->state = UNUSED;
       p->kstack = KSTACK((int) (p - proc));
+      memset(p->vma, 0, sizeof(p->vma));
   }
 }
 
@@ -287,7 +288,12 @@ fork(void)
   if((np = allocproc()) == 0){
     return -1;
   }
-
+  for (int i = 0; i < 16; i++) {
+    if (p->vma[i].valid == 1) {
+      memmove(&(np->vma[i]), &(p->vma[i]), sizeof(struct VMA));
+      filedup(p->vma[i].f);
+    }
+  }
   // Copy user memory from parent to child.
   if(uvmcopy(p->pagetable, np->pagetable, p->sz) < 0){
     freeproc(np);
@@ -350,7 +356,9 @@ exit(int status)
 
   if(p == initproc)
     panic("init exiting");
-
+  for (int i = 0; i < 16; i++) {
+      unmap_vma(p->vma[i].addr, p->vma[i].length);
+  }
   // Close all open files.
   for(int fd = 0; fd < NOFILE; fd++){
     if(p->ofile[fd]){
