@@ -112,3 +112,21 @@ kalloc(void)
     memset((char*)r, 5, PGSIZE); // fill with junk
   return (void*)r;
 }
+
+int
+get_mem_ref(uint64 pa)
+{
+  return mem_ref[(uint64)pa/PGSIZE].cnt;
+}
+
+
+int
+add_ref(uint64 pa)
+{
+  if(((uint64)pa % PGSIZE) != 0 || (char*)pa < end || (uint64)pa >= PHYSTOP)
+    return -1;
+  acquire(&(mem_ref[pa/PGSIZE].lock));
+  mem_ref[(uint64)pa/PGSIZE].cnt = mem_ref[(uint64)pa/PGSIZE].cnt + 1;
+  release(&(mem_ref[pa/PGSIZE].lock));
+  return 1;
+}
