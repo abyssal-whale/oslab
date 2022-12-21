@@ -23,6 +23,12 @@ struct {
   struct run *freelist;
 } kmem;
 
+struct mem_ref
+{
+  struct spinlock lock;
+  int cnt;
+};
+
 void
 kinit()
 {
