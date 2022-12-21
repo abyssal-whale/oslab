@@ -1,3 +1,14 @@
+struct VMA { 
+  uint64 addr; 
+  uint64 length; 
+  int prot; 
+  int flags; 
+  int offset; 
+  int valid; 
+  uint64 bitmap; 
+  struct file* f; 
+};
+
 // Saved registers for kernel context switches.
 struct context {
   uint64 ra;
